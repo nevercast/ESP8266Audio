@@ -22,15 +22,12 @@
 #include "driver/i2s.h"
 #include "AudioOutputI2S.h"
 
-AudioOutputI2S::AudioOutputI2S(int port, int output_mode, int dma_buf_count, int use_apll)
+AudioOutputI2S::AudioOutputI2S(int dma_buf_count, int use_apll)
 {
-  this->portNo = port;
+  this->portNo = 0;
   this->i2sOn = false;
   this->dma_buf_count = dma_buf_count;
-  if (output_mode != EXTERNAL_I2S && output_mode != INTERNAL_DAC && output_mode != INTERNAL_PDM) {
-    output_mode = EXTERNAL_I2S;
-  }
-  this->output_mode = output_mode;
+
   if (!i2sOn) {
     if (use_apll == APLL_AUTO) {
       // don't use audio pll on buggy rev0 chips
@@ -42,17 +39,9 @@ AudioOutputI2S::AudioOutputI2S(int port, int output_mode, int dma_buf_count, int
       }
     }
 
-    i2s_mode_t mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX);
-    if (output_mode == INTERNAL_DAC) {
-      mode = (i2s_mode_t)(mode | I2S_MODE_DAC_BUILT_IN);
-    } else if (output_mode == INTERNAL_PDM) {
-      mode = (i2s_mode_t)(mode | I2S_MODE_PDM);
-    }
+    i2s_mode_t mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN);
 
-    i2s_comm_format_t comm_fmt = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB);
-    if (output_mode == INTERNAL_DAC) {
-      comm_fmt = (i2s_comm_format_t)I2S_COMM_FORMAT_I2S_MSB;
-    }
+    i2s_comm_format_t comm_fmt = (i2s_comm_format_t)I2S_COMM_FORMAT_I2S_MSB;
 
     i2s_config_t i2s_config_dac = {
       .mode = mode,
@@ -69,12 +58,8 @@ AudioOutputI2S::AudioOutputI2S(int port, int output_mode, int dma_buf_count, int
     if (i2s_driver_install((i2s_port_t)portNo, &i2s_config_dac, 0, NULL) != ESP_OK) {
       audioLogger->println("ERROR: Unable to install I2S drives\n");
     }
-    if (output_mode == INTERNAL_DAC || output_mode == INTERNAL_PDM) {
-      i2s_set_pin((i2s_port_t)portNo, NULL);
-      i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
-    } else {
-      SetPinout(26, 25, 22);
-    }
+    i2s_set_pin((i2s_port_t)portNo, NULL);
+    i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
     i2s_zero_dma_buffer((i2s_port_t)portNo);
   }
   i2sOn = true;
@@ -92,20 +77,6 @@ AudioOutputI2S::~AudioOutputI2S()
     i2s_driver_uninstall((i2s_port_t)portNo); //stop & destroy i2s driver
   }
   i2sOn = false;
-}
-
-bool AudioOutputI2S::SetPinout(int bclk, int wclk, int dout)
-{
-  if (output_mode == INTERNAL_DAC || output_mode == INTERNAL_PDM) return false; // Not allowed
-
-  i2s_pin_config_t pins = {
-    .bck_io_num = bclk,
-    .ws_io_num = wclk,
-    .data_out_num = dout,
-    .data_in_num = I2S_PIN_NO_CHANGE
-  };
-  i2s_set_pin((i2s_port_t)portNo, &pins);
-  return true;
 }
 
 bool AudioOutputI2S::SetRate(int hz)
@@ -155,13 +126,9 @@ bool AudioOutputI2S::ConsumeSample(int16_t sample[2])
     ms[LEFTCHANNEL] = ms[RIGHTCHANNEL] = (ttl>>1) & 0xffff;
   }
   uint32_t s32;
-  if (output_mode == INTERNAL_DAC) {
-    int16_t l = Amplify(ms[LEFTCHANNEL]) + 0x8000;
-    int16_t r = Amplify(ms[RIGHTCHANNEL]) + 0x8000;
-    s32 = (r<<16) | (l&0xffff);
-  } else {
-    s32 = ((Amplify(ms[RIGHTCHANNEL]))<<16) | (Amplify(ms[LEFTCHANNEL]) & 0xffff);
-  }
+  int16_t l = Amplify(ms[LEFTCHANNEL]) + 0x8000;
+  int16_t r = Amplify(ms[RIGHTCHANNEL]) + 0x8000;
+  s32 = (r<<16) | (l&0xffff);
   return i2s_write_bytes((i2s_port_t)portNo, (const char*)&s32, sizeof(uint32_t), 0);
 }
 
@@ -181,5 +148,3 @@ bool AudioOutputI2S::stop()
   i2s_zero_dma_buffer((i2s_port_t)portNo);
   return true;
 }
-
-
