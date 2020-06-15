@@ -1,7 +1,7 @@
 /*
   AudioStatus
   Base class for Audio* status/metadata reporting
-  
+
   Copyright (C) 2017  Earle F. Philhower, III
 
   This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,6 @@
 
 #ifndef _AUDIOSTATUS_H
 #define _AUDIOSTATUS_H
-
-#include <Arduino.h>
 
 #include "AudioLogger.h"
 

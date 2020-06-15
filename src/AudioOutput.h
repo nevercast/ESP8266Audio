@@ -1,7 +1,7 @@
 /*
   AudioOutput
   Base class of an audio output player
-  
+
   Copyright (C) 2017  Earle F. Philhower, III
 
   This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #ifndef _AUDIOOUTPUT_H
 #define _AUDIOOUTPUT_H
 
-#include <Arduino.h>
 #include "AudioStatus.h"
 
 class AudioOutput
