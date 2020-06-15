@@ -1,7 +1,7 @@
 /*
   AudioFileSourcePROGMEM
   Store a "file" as a PROGMEM array and use it as audio source data
-  
+
   Copyright (C) 2017  Earle F. Philhower, III
 
   This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,10 @@
 #define _AUDIOFILESOURCEPROGMEM_H
 
 #include "AudioFileSource.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 class AudioFileSourcePROGMEM : public AudioFileSource
 {
@@ -44,6 +48,10 @@ class AudioFileSourcePROGMEM : public AudioFileSource
     uint32_t progmemLen;
     uint32_t filePointer;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

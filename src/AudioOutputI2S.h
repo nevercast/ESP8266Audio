@@ -23,6 +23,10 @@
 
 #include "AudioOutput.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class AudioOutputI2S : public AudioOutput
 {
   public:
@@ -51,6 +55,10 @@ class AudioOutputI2S : public AudioOutput
     uint32_t orig_bck;
     uint32_t orig_ws;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

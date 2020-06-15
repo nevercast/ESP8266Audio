@@ -25,6 +25,10 @@
 #include "AudioFileSource.h"
 #include "AudioOutput.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class AudioGenerator
 {
   public:
@@ -48,5 +52,9 @@ class AudioGenerator
   protected:
     AudioStatus cb;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

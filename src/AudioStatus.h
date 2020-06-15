@@ -23,6 +23,10 @@
 
 #include "AudioLogger.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class AudioStatus
 {
   public:
@@ -50,6 +54,10 @@ class AudioStatus
     statusCBFn stFn;
     void *stData;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

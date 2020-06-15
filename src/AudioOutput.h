@@ -23,6 +23,10 @@
 
 #include "AudioStatus.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class AudioOutput
 {
   public:
@@ -79,6 +83,10 @@ class AudioOutput
   protected:
     AudioStatus cb;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

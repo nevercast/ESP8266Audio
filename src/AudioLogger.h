@@ -1,6 +1,10 @@
 #ifndef _AUDIOLOGGER_H
 #define _AUDIOLOGGER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 class DevNullOut: public Print
 {
 public:
@@ -12,5 +16,9 @@ extern DevNullOut silencedLogger;
 // Global `audioLogger` is initialized to &silencedLogger
 // It can be initialized anytime to &Serial or any other Print:: derivative instance.
 extern Print* audioLogger;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
